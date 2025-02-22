@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
-interface TodoFormProps {
+interface TodoInputProp{
     onAdd: (text: string) => void;
 }
 
-const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
+const TodoInput: React.FC<TodoInputProp> = ({ onAdd }) => {
     const [text, setText] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleInputChange = (e: React.FormEvent) => {
         e.preventDefault();
         if (!text.trim()) return;
         onAdd(text);
@@ -15,7 +15,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="d-flex mb-3">
+        <form onSubmit={handleInputChange} className="d-flex mb-3">
             <input
                 type="text"
                 value={text}
@@ -32,6 +32,6 @@ const TodoForm: React.FC<TodoFormProps> = ({ onAdd }) => {
             </button>
         </form>
     );
-};
+}
 
-export default TodoForm;
+export default TodoInput;

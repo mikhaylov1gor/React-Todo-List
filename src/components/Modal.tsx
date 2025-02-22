@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 
 interface ModalProps {
     isOpen: boolean;
@@ -19,62 +19,45 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onSave, currentText }) =
         onClose();
     };
 
+    const handleCancel = () => {
+        setNewText(currentText);
+        onClose();
+    };
+
     if (!isOpen) return null;
 
     return (
-        <div className="modal" style={modalBackdropStyle}>
-            <div className="modal-content" style={modalContentStyle}>
-                <h2>Edit Todo</h2>
-                <input
-                    type="text"
-                    value={newText}
-                    onChange={(e) => setNewText(e.target.value)}
-                    className="form-control"
-                    style={inputStyle}
-                />
-                <div style={buttonContainerStyle}>
-                    <button onClick={handleSave} disabled={!newText.trim()} className="btn btn-primary">
-                        Save
-                    </button>
-                    <button onClick={onClose} className="btn btn-secondary ml-2">
-                        Cancel
-                    </button>
+        <div className="modal fade show" style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}>
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Edit Todo</h5>
+                        <button type="button" className="btn-close" onClick={handleCancel}></button>
+                    </div>
+                    <div className="modal-body">
+                        <input
+                            type="text"
+                            value={newText}
+                            onChange={(e) => setNewText(e.target.value)}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="modal-footer">
+                        <button
+                            onClick={handleSave}
+                            disabled={!newText.trim()}
+                            className="btn btn-primary"
+                        >
+                            Save
+                        </button>
+                        <button onClick={handleCancel} className="btn btn-secondary">
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     );
-};
-
-const modalBackdropStyle: React.CSSProperties = {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    zIndex: 1050,
-};
-
-const modalContentStyle: React.CSSProperties = {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "8px",
-    width: "400px",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-};
-
-const inputStyle: React.CSSProperties = {
-    width: "100%",
-    marginBottom: "20px",
-};
-
-const buttonContainerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "5px",
 };
 
 export default Modal;
