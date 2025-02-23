@@ -4,9 +4,9 @@ import {Task} from "../types/task.ts";
 
 interface TodoItemProps {
     task: Task;
-    onToggle: (id: number) => void;
-    onEdit: (id: number, newText: string) => void;
-    onDelete: (id: number) => void;
+    onToggle: (id: string) => void;
+    onEdit: (id: string, newText: string) => void;
+    onDelete: (id: string) => void;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({task, onToggle, onEdit, onDelete }) =>{
@@ -16,11 +16,11 @@ const TodoItem: React.FC<TodoItemProps> = ({task, onToggle, onEdit, onDelete }) 
             <div style={{ flex: 1, wordWrap: "break-word" }}>
                 <input
                     type="checkbox"
-                    checked={task.completed}
+                    checked={task.isCompleted}
                     onChange={() => onToggle(task.id)}
                     className="me-2"
                 />
-                <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
+                <span style={{ textDecoration: task.isCompleted ? "line-through" : "none" }}>
                     {task.text}
                 </span>
             </div>
