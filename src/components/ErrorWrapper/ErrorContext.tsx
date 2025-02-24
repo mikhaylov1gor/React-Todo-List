@@ -13,16 +13,3 @@ export const useError = () => {
     }
     return context;
 };
-
-export const ErrorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [error, setError] = useState<string | null>(null);
-
-    const handleClose = () => setError(null);
-
-    return (
-        <ErrorContext.Provider value={{ setError }}>
-            {children}
-            <ErrorModal isOpen={!!error} errorMessage={error || ""} onClose={handleClose} />
-        </ErrorContext.Provider>
-    );
-};
