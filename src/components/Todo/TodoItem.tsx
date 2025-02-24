@@ -4,7 +4,7 @@ import {Task} from "../../types/task.ts";
 
 interface TodoItemProps {
     task: Task;
-    onToggle: (id: string) => void;
+    onToggle: (task: Task) => void;
     onEdit: (id: string, newText: string) => void;
     onDelete: (id: string) => void;
     onDragStart: (task: Task) => void;
@@ -13,6 +13,7 @@ interface TodoItemProps {
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({task, onToggle, onEdit, onDelete, onDragStart, onDragOver, onDrop}) =>{
+
 
     return (
         <div className="d-flex justify-content-between align-items-center mb-2">
@@ -27,7 +28,7 @@ const TodoItem: React.FC<TodoItemProps> = ({task, onToggle, onEdit, onDelete, on
                     <input
                         type="checkbox"
                         checked={task.isCompleted}
-                        onChange={() => onToggle(task.id)}
+                        onChange={() => onToggle(task)}
                         className="me-2"
                     />
                     <span style={{ textDecoration: task.isCompleted ? "line-through" : "none", flexGrow: 1 }}>

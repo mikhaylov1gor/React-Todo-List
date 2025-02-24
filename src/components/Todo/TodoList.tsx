@@ -7,7 +7,7 @@ import { fetchTasks, addTask, deleteTask, updateTask, toggleTask } from "../../A
 import ErrorModal from "../ErrorWrapper/ErrorModal.tsx";
 
 const TodoList: React.FC = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [tasks, setTasks] = useState<Map<string, Task>>(new Map());
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
     const [currentEditId, setCurrentEditId] = useState<string | null>(null);
@@ -19,35 +19,41 @@ const TodoList: React.FC = () => {
         const fetchData = async () => {
             try {
                 const data = await fetchTasks();
-                setTasks(data);
+                const tasksMap = new Map<string, Task>(data.map(task => [task.id, task]));
+                setTasks(tasksMap);
             } catch (error) {
-                setErrorMessage("Ошибка при загрузке задач: " + error);
+                console.error("Ошибка при загрузке задач:", error);
             }
         };
-
         fetchData();
     }, []);
 
     const sortedTodos = useMemo(() => {
-        return [...tasks].sort((a, b) => (a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1));
+        return Array.from(tasks.values()).sort((a, b) => (a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1));
     }, [tasks]);
+
 
     const handleAddTask = async (text: string) => {
         try {
             const newTask = await addTask(text);
-            setTasks([...tasks, newTask]);
+            setTasks(prevTasks => new Map(prevTasks).set(newTask.id, newTask));
         } catch (error) {
             setErrorMessage("Ошибка при добавлении задачи: " + error);
             setIsErrorModalOpen(true);
         }
     };
 
-    const handleToggleTask = async (id: string) => {
+    const handleToggleTask = async (currentTask: Task) => {
         try {
-            await toggleTask(id);
-            setTasks(tasks.map((task) =>
-                task.id === id ? { ...task, isCompleted: !task.isCompleted } : task
-            ));
+            await toggleTask(currentTask.id);
+            setTasks(prevTasks => {
+                const updatedTasks = new Map(prevTasks);
+                const task = updatedTasks.get(currentTask.id);
+                if (task) {
+                    updatedTasks.set(currentTask.id, { ...task, isCompleted: !task.isCompleted });
+                }
+                return updatedTasks;
+            });
         } catch (error) {
             setErrorMessage("Ошибка при изменении статуса задачи:" + error);
             setIsErrorModalOpen(true);
@@ -57,7 +63,11 @@ const TodoList: React.FC = () => {
     const handleDeleteTask = async (id: string) => {
         try {
             await deleteTask(id);
-            setTasks(tasks.filter((task) => task.id !== id));
+            setTasks(prevTasks => {
+                const updatedTasks = new Map(prevTasks);
+                updatedTasks.delete(id);
+                return updatedTasks;
+            });
         } catch (error) {
             setErrorMessage("Ошибка при удалении задачи: " + error);
             setIsErrorModalOpen(true);
@@ -67,7 +77,14 @@ const TodoList: React.FC = () => {
     const handleEditTask = async (id: string, newText: string) => {
         try {
             await updateTask(id, newText);
-            setTasks(tasks.map((task) => (task.id === id ? { ...task, text: newText } : task)));
+            setTasks(prevTasks => {
+                const updatedTasks = new Map(prevTasks);
+                const task = updatedTasks.get(id);
+                if (task) {
+                    updatedTasks.set(id, { ...task, text: newText });
+                }
+                return updatedTasks;
+            });
         } catch (error) {
             setErrorMessage("Ошибка при редактировании задачи: " + error);
             setIsErrorModalOpen(true);
@@ -101,6 +118,7 @@ const TodoList: React.FC = () => {
     // drag-n-drop
     const handleDragStart = (task: Task) => {
         setDraggedItem(task);
+        console.log ("draggedItem: " + task.id)
     };
 
     const handleDragOver = (event: React.DragEvent<HTMLLIElement>) => {
@@ -110,18 +128,29 @@ const TodoList: React.FC = () => {
     const handleDrop = (targetTask: Task) => {
         if (!draggedItem || draggedItem.id === targetTask.id) return;
 
-        const newTasks = [...tasks];
-        const fromIndex = newTasks.findIndex((t) => t.id === draggedItem.id);
-        const toIndex = newTasks.findIndex((t) => t.id === targetTask.id);
+        setTasks(prevTasks => {
+            const updatedTasks = new Map(prevTasks);
+            const taskIds = Array.from(updatedTasks.keys());
+            const draggedItemIndex = taskIds.indexOf(draggedItem.id);
+            const targetItemIndex = taskIds.indexOf(targetTask.id);
 
-        if (fromIndex !== -1 && toIndex !== -1) {
-            newTasks.splice(fromIndex, 1);
-            newTasks.splice(toIndex, 0, draggedItem);
-            setTasks(newTasks);
-        }
+            if (draggedItemIndex !== -1 && targetItemIndex !== -1) {
+                taskIds.splice(draggedItemIndex, 1);
+                taskIds.splice(targetItemIndex, 0, draggedItem.id);
+                const reorderedTasks = new Map();
+                taskIds.forEach(id => {
+                    reorderedTasks.set(id, updatedTasks.get(id)!);
+                });
+
+                return reorderedTasks;
+            }
+
+            return updatedTasks;
+        });
 
         setDraggedItem(null);
     };
+
 
     return (
         <div className="container my-5 p-3 border rounded shadow-sm" style={{ maxWidth: "50%" }}>
