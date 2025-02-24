@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import ErrorModal from "./ErrorModal.tsx";
+import { createContext, useContext } from "react";
 
 interface ErrorContextType{
     setError: (message: string) => void;
