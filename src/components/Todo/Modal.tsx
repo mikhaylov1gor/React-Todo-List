@@ -44,6 +44,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onSave, currentText }) =
                     </div>
                     <div className="modal-footer">
                         <button
+                            type="submit"
                             onClick={handleSave}
                             disabled={!newText.trim()}
                             className="btn btn-primary"

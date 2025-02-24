@@ -1,8 +1,12 @@
-import TodoList from "./components/TodoList.tsx";
+import TodoList from "./components/Todo/TodoList.tsx";
+import ErrorWrapper from "./components/ErrorWrapper/ErrorWrapper.tsx";
 
 function App(){
-
-    return (<TodoList/>);
+    return (
+        <ErrorWrapper>
+            <TodoList />
+        </ErrorWrapper>
+    );
 }
 
 export default App;
